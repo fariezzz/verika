@@ -4,22 +4,21 @@
 
 process.env.NODE_ENV = 'test';
 
-import { test, describe, before, after, beforeEach } from 'node:test';
+import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'http';
 import jwt from 'jsonwebtoken';
 import gatewayApp from '../packages/gateway/src/server.js';
 import nilaiApp from '../packages/service-nilai/src/server.js';
 import transkripApp from '../packages/service-transkrip/src/server.js';
-import { setMockTime, clearMockTime, closePool, query, execute } from '@zero-trust/shared';
+import { setMockTime, clearMockTime, closePool, query } from '@zero-trust/shared';
 
 const GATEWAY_PORT = 3000;
 const NILAI_PORT = 3001;
 const TRANSKRIP_PORT = 3002;
 const BASE_URL = `http://127.0.0.1:${GATEWAY_PORT}`;
 const NILAI_URL = `http://127.0.0.1:${NILAI_PORT}`;
-const TRANSKRIP_URL = `http://127.0.0.1:${TRANSKRIP_PORT}`;
-const GATEWAY_SECRET = process.env.GATEWAY_SECRET || 'gw_secret_internal_zero_trust_unsil_2026';
+const GATEWAY_SECRET = process.env.GATEWAY_SECRET || 'gw_secret_internal_zero_trust_verika_2026';
 
 let serverGateway;
 let serverNilai;
@@ -28,8 +27,9 @@ let serverTranskrip;
 // Token dan sesi yang akan digunakan pada berbagai skenario
 let tokenMahasiswa1 = '';
 let tokenMahasiswa2 = '';
-let tokenDosenVega = '';
 let tokenDosenAlam = '';
+let tokenDosenAradea = '';
+let tokenDosenRandi = '';
 let tokenAdmin = '';
 let tokenService = '';
 let refreshTokenMahasiswa1 = '';
@@ -44,8 +44,8 @@ before(async () => {
   await new Promise((resolve) => serverTranskrip.listen(TRANSKRIP_PORT, '127.0.0.1', resolve));
   await new Promise((resolve) => serverGateway.listen(GATEWAY_PORT, '127.0.0.1', resolve));
 
-  // Pastikan jam akses dalam rentang yang diizinkan untuk setup awal
-  setMockTime('2026-10-22T10:00:00+07:00'); // 10:00 WIB (dalam 07:00-21:00)
+  // Pastikan jam akses dalam rentang yang diizinkan untuk setup awal (10:00 WIB)
+  setMockTime('2026-10-22T10:00:00+07:00');
 });
 
 after(async () => {
@@ -91,20 +91,31 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
     });
     tokenMahasiswa2 = (await resMhs2.json()).accessToken;
 
-    const resDsnVega = await fetch(`${BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Device-ID': 'DEV-DSN-001' },
-      body: JSON.stringify({ username: 'dosen_vega', password: 'password123' })
-    });
-    tokenDosenVega = (await resDsnVega.json()).accessToken;
-
+    // Dosen Alam (Keamanan Informasi)
     const resDsnAlam = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Device-ID': 'DEV-DSN-002' },
+      headers: { 'Content-Type': 'application/json', 'X-Device-ID': 'DEV-DSN-001' },
       body: JSON.stringify({ username: 'dosen_alam', password: 'password123' })
     });
     tokenDosenAlam = (await resDsnAlam.json()).accessToken;
 
+    // Dosen Aradea (Inteligensi Artifisial)
+    const resDsnAradea = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Device-ID': 'DEV-DSN-002' },
+      body: JSON.stringify({ username: 'dosen_aradea', password: 'password123' })
+    });
+    tokenDosenAradea = (await resDsnAradea.json()).accessToken;
+
+    // Dosen Randi (Komputasi Paralel dan Terdistribusi)
+    const resDsnRandi = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Device-ID': 'DEV-DSN-003' },
+      body: JSON.stringify({ username: 'dosen_randi', password: 'password123' })
+    });
+    tokenDosenRandi = (await resDsnRandi.json()).accessToken;
+
+    // Admin
     const resAdmin = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Device-ID': 'DEV-ADM-001' },
@@ -148,7 +159,7 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
   // Skenario 4: Access token kedaluwarsa atau tidak valid ditolak
   test('4. Access token kedaluwarsa atau signature palsu ditolak (401 Unauthorized)', async () => {
     // Buat token palsu dengan secret yang salah
-    const fakeToken = jwt.sign({ sub: 1, role: 'admin' }, 'secret_palsu_bukan_unsil');
+    const fakeToken = jwt.sign({ sub: 1, role: 'admin' }, 'secret_palsu_bukan_verika');
 
     const res = await fetch(`${BASE_URL}/nilai`, {
       method: 'GET',
@@ -226,10 +237,11 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
 
   // Skenario 8: Dosen dapat mengakses nilai kelas yang diampunya
   test('8. Dosen dapat mengakses nilai kelas yang diampunya', async () => {
+    // Dosen Alam mengampu kelas Keamanan Informasi (KP70065004)
     const res = await fetch(`${BASE_URL}/nilai`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${tokenDosenVega}`,
+        'Authorization': `Bearer ${tokenDosenAlam}`,
         'X-Device-ID': 'DEV-DSN-001'
       }
     });
@@ -238,25 +250,25 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
     const result = await res.json();
     assert.ok(Array.isArray(result.data));
     const assignedClass = result.data.find((c) => c.kode_mk === 'KP70065004');
-    assert.ok(assignedClass, 'Dosen Vega harus dapat melihat kelas Keamanan Informasi (KP70065004)');
+    assert.ok(assignedClass, 'Dosen Alam harus dapat melihat kelas Keamanan Informasi (KP70065004)');
     assert.ok(assignedClass.peserta.length > 0, 'Daftar mahasiswa peserta kelas harus tampil');
   });
 
   // Skenario 9: Dosen ditolak saat mencoba mengubah nilai di kelas dosen lain
   test('9. Dosen ditolak saat mencoba mengubah nilai di kelas dosen lain (403 Forbidden)', async () => {
-    // Kelas 2 (IF70063001 - Inteligensi Artifisial) diampu oleh Dosen Alam.
+    // Kelas 2 (KP70065001 - Inteligensi Artifisial) diampu oleh Dosen Aradea.
     // Ambil nilai ID yang ada di kelas 2
     const gradeRows = await query(
-      `SELECT n.id FROM nilai n JOIN classes c ON n.class_id = c.id WHERE c.kode_mk = 'IF70063001' LIMIT 1`
+      `SELECT n.id FROM nilai n JOIN classes c ON n.class_id = c.id WHERE c.kode_mk = 'KP70065001' LIMIT 1`
     );
     const targetGradeId = gradeRows[0].id;
 
-    // Dosen Vega mencoba mengedit nilai pada kelas Dosen Alam
+    // Dosen Alam mencoba mengedit nilai pada kelas Dosen Aradea
     const res = await fetch(`${BASE_URL}/nilai/${targetGradeId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenDosenVega}`,
+        'Authorization': `Bearer ${tokenDosenAlam}`,
         'X-Device-ID': 'DEV-DSN-001'
       },
       body: JSON.stringify({ nilai_angka: 95.0 })
@@ -269,19 +281,19 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
 
   // Skenario 10: Dosen ditolak saat mengubah nilai yang sudah final
   test('10. Dosen ditolak saat mengubah nilai yang sudah berstatus final (403 Forbidden)', async () => {
-    // Cari nilai yang sudah final (Kelas Jaringan Komputer - IF70063002)
+    // Cari nilai yang sudah final (Kelas Komputasi Paralel dan Terdistribusi - IF70063002)
     const finalizedGradeRows = await query(
       `SELECT n.id FROM nilai n WHERE n.is_final = 1 LIMIT 1`
     );
     const finalizedGradeId = finalizedGradeRows[0].id;
 
-    // Dosen Alam mencoba mengedit nilai yang sudah final
+    // Dosen Randi (pengampu) mencoba mengedit nilai yang sudah final
     const res = await fetch(`${BASE_URL}/nilai/${finalizedGradeId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenDosenAlam}`,
-        'X-Device-ID': 'DEV-DSN-002'
+        'Authorization': `Bearer ${tokenDosenRandi}`,
+        'X-Device-ID': 'DEV-DSN-003'
       },
       body: JSON.stringify({ nilai_angka: 99.0 })
     });
@@ -296,9 +308,9 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
     // Suntikkan waktu jam 02:00 dini hari WIB (di luar jam akses 07:00 - 21:00)
     setMockTime('2026-10-22T02:00:00+07:00');
 
-    // Ambil kelas milik Dosen Vega yang belum final
+    // Ambil kelas milik Dosen Alam yang belum final (Keamanan Informasi)
     const unfinalizedGradeRows = await query(
-      `SELECT n.id FROM nilai n JOIN classes c ON n.class_id = c.id WHERE c.dosen_id = 2 AND n.is_final = 0 LIMIT 1`
+      `SELECT n.id FROM nilai n JOIN classes c ON n.class_id = c.id WHERE c.kode_mk = 'KP70065004' AND n.is_final = 0 LIMIT 1`
     );
     const targetGradeId = unfinalizedGradeRows[0].id;
 
@@ -306,7 +318,7 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenDosenVega}`,
+        'Authorization': `Bearer ${tokenDosenAlam}`,
         'X-Device-ID': 'DEV-DSN-001'
       },
       body: JSON.stringify({ nilai_angka: 89.0 })
@@ -322,7 +334,7 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
 
   // Skenario 12: Finalisasi dalam kondisi sah memicu sinkronisasi transkrip
   test('12. Finalisasi kelas oleh dosen sah memicu sinkronisasi ke Service Transkrip', async () => {
-    // Ambil ID kelas Keamanan Informasi milik Dosen Vega
+    // Ambil ID kelas Keamanan Informasi milik Dosen Alam
     const classRows = await query(
       `SELECT id FROM classes WHERE kode_mk = 'KP70065004' AND is_finalized = 0`
     );
@@ -332,7 +344,7 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
     const res = await fetch(`${BASE_URL}/kelas/${classId}/finalisasi`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${tokenDosenVega}`,
+        'Authorization': `Bearer ${tokenDosenAlam}`,
         'X-Device-ID': 'DEV-DSN-001'
       }
     });
@@ -368,7 +380,7 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${tokenDosenVega}`,
+        'Authorization': `Bearer ${tokenDosenAlam}`,
         'X-Device-ID': 'DEV-DSN-001'
       },
       body: JSON.stringify({ class_id: 1, items: [] })
@@ -395,7 +407,7 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        client_id: 'service-nilai-unsil',
+        client_id: 'service-nilai-verika',
         client_secret: 'svc_nilai_secret_key_9876543210'
       })
     });
@@ -404,6 +416,10 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
     const svcData = await authSvcRes.json();
     tokenService = svcData.accessToken;
     assert.equal(svcData.role, 'service');
+
+    // Ambil ID user Fariez dari DB secara dinamis
+    const [fariezRow] = await query("SELECT id FROM users WHERE identifier = '247006111146'");
+    assert.ok(fariezRow, 'User Fariez harus ada di database');
 
     // Gunakan service token untuk sinkronisasi melalui Gateway
     const syncRes = await fetch(`${BASE_URL}/transkrip/sinkron`, {
@@ -416,7 +432,7 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
         class_id: 999,
         items: [
           {
-            student_id: 4,
+            student_id: fariezRow.id,
             nim: '247006111146',
             kode_mk: 'TEST101',
             nama_mk: 'Pengujian Sistem Zero Trust',

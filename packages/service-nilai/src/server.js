@@ -16,7 +16,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 const app = express();
 const PORT = parseInt(process.env.NILAI_PORT || '3001', 10);
 const GATEWAY_URL = process.env.GATEWAY_URL || 'http://localhost:3000';
-const CLIENT_ID = process.env.SERVICE_NILAI_CLIENT_ID || 'service-nilai-unsil';
+const CLIENT_ID = process.env.SERVICE_NILAI_CLIENT_ID || 'service-nilai-verika';
 const CLIENT_SECRET = process.env.SERVICE_NILAI_CLIENT_SECRET || 'svc_nilai_secret_key_9876543210';
 
 app.use(cors());
@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(verifyServiceGuard);
 
 /**
- * Konversi nilai angka ke huruf mutu dan bobot akademik standar UNSIL
+ * Konversi nilai angka ke huruf mutu dan bobot akademik standar
  */
 function calculateGrade(score) {
   const num = Number(score);

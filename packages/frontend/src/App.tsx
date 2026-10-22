@@ -1,26 +1,28 @@
 // packages/frontend/src/App.tsx
-// Komponen Utama Aplikasi Web Sistem Nilai Zero Trust
+// Komponen Utama Aplikasi Web Sistem Nilai Akademik VERIKA
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './components/LoginPage';
 import { Navbar } from './components/Navbar';
 import { MahasiswaDashboard } from './components/MahasiswaDashboard';
 import { DosenDashboard } from './components/DosenDashboard';
 import { AdminDashboard } from './components/AdminDashboard';
+import { SecurityDemoPage } from './components/SecurityDemoPage';
 import { ShieldIcon, RefreshCwIcon } from './components/Icons';
 
 const AppContent: React.FC = () => {
   const { user, isLoading } = useAuth();
+  const [currentView, setCurrentView] = useState<'dashboard' | 'security-demo'>('dashboard');
 
   if (isLoading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#0e4b37', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
-          <ShieldIcon size={28} />
+        <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: '#0e4b37', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
+          <ShieldIcon size={24} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '14px', fontWeight: 500 }}>
-          <RefreshCwIcon size={16} /> Memverifikasi status sesi & integritas token...
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '13px', fontWeight: 500 }}>
+          <RefreshCwIcon size={14} style={{ animation: 'spin 1s linear infinite' }} /> Memeriksa status sesi autentikasi...
         </div>
       </div>
     );
@@ -32,21 +34,33 @@ const AppContent: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
-      <Navbar />
+      <Navbar currentView={currentView} onViewChange={setCurrentView} />
 
       <main style={{ flex: 1 }}>
-        {user.role === 'mahasiswa' && <MahasiswaDashboard />}
-        {user.role === 'dosen' && <DosenDashboard />}
-        {user.role === 'admin' && <AdminDashboard />}
+        {currentView === 'security-demo' ? (
+          <SecurityDemoPage onBackToDashboard={() => setCurrentView('dashboard')} />
+        ) : (
+          <>
+            {user.role === 'mahasiswa' && <MahasiswaDashboard />}
+            {user.role === 'dosen' && <DosenDashboard />}
+            {user.role === 'admin' && <AdminDashboard />}
+          </>
+        )}
       </main>
 
-      <footer style={{ borderTop: '1px solid #e2e8f0', background: '#ffffff', padding: '18px 0', marginTop: 'auto', fontSize: '12px', color: '#64748b' }}>
+      {/* Footer Bersih & Profesional */}
+      <footer style={{ borderTop: '1px solid #e2e8f0', background: '#ffffff', padding: '16px 0', marginTop: 'auto', fontSize: '12px', color: '#64748b' }}>
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <strong>Universitas Siliwangi</strong> • Jurusan Informatika • Keamanan Informasi (KP70065004)
+            © 2026 <strong>VERIKA Academic</strong> • Sistem Informasi Nilai Terpadu
           </div>
           <div>
-            Arsitektur Zero Trust (NIST SP 800-207 Policy Enforcement Point)
+            <button
+              onClick={() => setCurrentView(currentView === 'dashboard' ? 'security-demo' : 'dashboard')}
+              style={{ background: 'none', border: 'none', color: '#0e4b37', cursor: 'pointer', fontSize: '12px', fontWeight: 600, padding: 0 }}
+            >
+              {currentView === 'dashboard' ? 'Laboratorium Uji Keamanan' : 'Kembali ke Dashboard Utama'}
+            </button>
           </div>
         </div>
       </footer>

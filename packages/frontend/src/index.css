@@ -1,5 +1,5 @@
 /* packages/frontend/src/index.css */
-/* Sistem Desain Akademik UNSIL - SINTESYS & Gapura Access */
+/* Sistem Desain Akademik VERIKA - Zero Trust Architecture */
 
 :root {
   --primary: #0e4b37;
@@ -33,13 +33,42 @@
   margin: 0;
   padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
 }
 
+/* Sembunyikan scrollbar di seluruh browser berbasis WebKit/Blink (Chrome, Edge, Safari) */
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+html,
 body {
   background-color: var(--background);
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Animasi Spinner Loading */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Utilitas Tata Letak */
@@ -68,6 +97,7 @@ body {
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .badge-success {
@@ -113,6 +143,7 @@ body {
   cursor: pointer;
   border: none;
   transition: all 0.15s ease-in-out;
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -285,4 +316,240 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+/* ===================================================
+   Responsive Mobile Utilities (NIST SP 800-207 UI)
+   Navbar: desktop sticky 64px, mobile 54px dropdown
+   =================================================== */
+
+.navbar-header {
+  position: sticky;
+  top: 0;
+  height: 64px;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+.navbar-desktop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.navbar-mobile-toggle {
+  display: none;
+}
+
+.navbar-mobile-menu {
+  display: none;
+}
+
+.dashboard-layout-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.demo-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.page-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.card-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.controls-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.login-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.login-hero-panel {
+  flex: 1.1;
+  background-color: #0a3829;
+  background-image: radial-gradient(circle at 20% 30%, #166534 0%, #064e3b 70%, #022c22 100%);
+  color: #ffffff;
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-form-panel {
+  flex: 1;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+/* Breakpoint: Layar Ponsel & Tablet Kecil (max-width: 768px) */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 14px;
+  }
+
+  /* Navbar mobile 54px */
+  .navbar-header {
+    height: 54px;
+  }
+
+  .navbar-desktop {
+    display: none;
+  }
+
+  .navbar-mobile-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: #f8fafc;
+    cursor: pointer;
+    color: var(--text-main);
+  }
+
+  .navbar-mobile-menu {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 54px;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    padding: 16px 14px;
+    gap: 12px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Login page stack vertikal */
+  .login-layout {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .login-hero-panel {
+    flex: none;
+    padding: 24px 16px 20px;
+  }
+
+  .login-hero-panel .login-decor {
+    display: none;
+  }
+
+  .login-hero-panel h1 {
+    font-size: 26px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .login-hero-panel p {
+    font-size: 13px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .login-hero-panel .rules-card {
+    display: none;
+  }
+
+  .login-hero-panel .footer-campus {
+    display: none;
+  }
+
+  .login-form-panel {
+    padding: 20px 14px 36px;
+  }
+
+  /* Grid layout bertransformasi ke 1 kolom penuh */
+  .dashboard-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .demo-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .page-header-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-header-flex > button,
+  .page-header-flex > div:last-child {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .controls-group {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .controls-group > * {
+    flex: 1 1 auto;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .card-header-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .card-header-flex > div:last-child {
+    width: 100%;
+  }
+
+  .card-header-flex .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Padding kartu di mobile */
+  .card {
+    padding: 16px;
+  }
+
+  .modal-content {
+    margin: 10px;
+    max-width: 95%;
+  }
 }

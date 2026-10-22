@@ -22,7 +22,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const app = express();
 const PORT = parseInt(process.env.GATEWAY_PORT || '3000', 10);
-const GATEWAY_SECRET = process.env.GATEWAY_SECRET || 'gw_secret_internal_zero_trust_unsil_2026';
+const GATEWAY_SECRET = process.env.GATEWAY_SECRET || 'gw_secret_internal_zero_trust_verika_2026';
 const NILAI_URL = process.env.NILAI_URL || 'http://localhost:3001';
 const TRANSKRIP_URL = process.env.TRANSKRIP_URL || 'http://localhost:3002';
 

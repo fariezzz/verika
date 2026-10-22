@@ -1,6 +1,6 @@
 # Panduan Naskah Video Demonstrasi (Durasi 6–9 Menit)
 ## Tugas Praktikum Individu: Zero Trust Security Sistem Nilai Akademik
-**Keamanan Informasi (KP70065004) • Informatika Universitas Siliwangi**
+**Keamanan Informasi (KP70065004) • Informatika • VERIKA Academic System**
 
 - **Presenter:** Muhammad Fariez Riziq Ilham (NIM: 247006111146)
 - **Target Durasi:** 7 menit 30 detik (rentang aman 6–9 menit)
@@ -25,7 +25,7 @@
 
 #### 1. Pendahuluan & Gambaran Arsitektur (Menit 00:00 - 01:00)
 - **Narasi Pembicara:**
-  > "Wilujeng enjing / Assalamu'alaikum wr. wb. Perkenalkan, saya Muhammad Fariez Riziq Ilham, NIM 247006111146 dari kelas Informatika E Universitas Siliwangi. Pada kesempatan ini saya akan mendemonstrasikan implementasi sistem nilai akademik berbasis arsitektur Zero Trust sesuai standar NIST SP 800-207 untuk tugas praktikum Keamanan Informasi."
+  > "Selamat pagi / Assalamu'alaikum wr. wb. Perkenalkan, saya Muhammad Fariez Riziq Ilham, NIM 247006111146 dari kelas Informatika E. Pada kesempatan ini saya akan mendemonstrasikan implementasi VERIKA, yaitu sistem nilai dan transkrip akademik berbasis arsitektur Zero Trust sesuai standar NIST SP 800-207 untuk tugas praktikum Keamanan Informasi."
 - **Aksi Layar:**
   - Tampilkan diagram arsitektur pada `README.md`.
   - Tunjukkan bahwa sistem terdiri dari 4 aplikasi terpisah:
@@ -65,9 +65,10 @@
     `if (role === 'mahasiswa' && decodedUser.identifier !== requestedNim) return { allow: false, statusCode: 403, ... }`
 - **Aksi Layar (Demo Interaktif):**
   - Tunjukkan Dasbor Mahasiswa Fariez: tabel KHS menampilkan nilai semester berjalan, dan tab Transkrip menampilkan rekap 84 SKS dengan IPK 3.90 sesuai data riil.
-  - Klik tombol demo: **"Uji Akses NIM Mahasiswa Lain"** (meminta `/transkrip/247006111147`).
-  - Tunjukkan bahwa sistem langsung menampilkan banner:
-    *"BERHASIL DIBLOKIR: Gateway & Policy Engine menolak permintaan (403): Pelanggaran Least Privilege: Mahasiswa dilarang melihat transkrip NIM 247006111147"*.
+  - Klik tombol navigasi **"Uji Zero Trust"** di Navbar untuk membuka Laboratorium Pengujian Keamanan.
+  - Pada Skenario 1 (Hak Akses Mahasiswa), masukkan NIM lain (`247006111147`) lalu klik **"Uji Akses NIM"**.
+  - Tunjukkan bahwa sistem langsung menampilkan penolakan:
+    *"BERHASIL DIBLOKIR: Gateway PEP menolak (403): Pelanggaran Least Privilege: Mahasiswa dilarang melihat transkrip NIM 247006111147"*.
 
 ---
 
@@ -78,11 +79,11 @@
   - Buka `packages/shared/src/time.js` dan tunjukkan pembacaan `process.env.GRADE_EDIT_START` (07:00), `process.env.GRADE_EDIT_END` (21:00), dan `APP_TIMEZONE` (`Asia/Jakarta`).
   - Buka `packages/gateway/src/policy-engine.js` pada rute `PUT /nilai/:id` dan `POST /kelas/:id/finalisasi`.
 - **Aksi Layar (Demo Interaktif):**
-  - Logout dari Mahasiswa, login sebagai **Dosen Vega** (`dosen_vega`, Device: `DEV-DSN-001`).
+  - Logout dari Mahasiswa, login sebagai **Dosen Alam** (`dosen_alam`, Device: `DEV-DSN-001`).
   - Tampilkan kelas yang diampu: *Keamanan Informasi (Kelas E)*.
   - Klik **Ubah** pada salah satu mahasiswa, ganti nilai menjadi `90`, simpan, nilai berhasil terupdate.
-  - Tunjukkan tombol demo: **"Uji Coba Ubah Nilai Kelas Dosen Lain"**. Klik tombol tersebut.
-  - Tunjukkan respons penolakan: *"BERHASIL DIBLOKIR: Dosen Vega tidak mengampu mata kuliah ini (Least Privilege Violation)"*.
+  - Klik tombol navigasi **"Uji Zero Trust"** di Navbar, jalankan Skenario 2: **"Uji Ubah Nilai Kelas Dosen Lain"**.
+  - Tunjukkan respons penolakan: *"BERHASIL DIBLOKIR: Dosen Alam tidak mengampu mata kuliah ini (Least Privilege Violation)"*.
 
 ---
 
@@ -97,7 +98,7 @@
   - Buka `packages/service-transkrip/src/server.js` pada endpoint `POST /transkrip/sinkron`:
     Tunjukkan bahwa endpoint ini memeriksa `if (user.role !== 'service') return res.status(403)`. Token mahasiswa, dosen, bahkan admin pasti ditolak.
 - **Aksi Layar (Demo Interaktif):**
-  - Pada dasbor Dosen Vega, klik tombol **Finalisasi Nilai Kelas**.
+  - Pada dasbor Dosen Alam, klik tombol **Finalisasi Nilai Kelas**.
   - Modal konfirmasi muncul, klik **Ya, Finalisasi & Sinkronkan**.
   - Status kelas berubah menjadi: *"Nilai Telah Difinalisasi & Dikunci • Tersinkron ke Transkrip"*.
   - Coba klik tombol ubah nilai: tombol dinonaktifkan karena nilai sudah berstatus final.

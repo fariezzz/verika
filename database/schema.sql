@@ -1,5 +1,5 @@
 -- Skema Basis Data Zero Trust Security - Sistem Nilai Akademik
--- Universitas Siliwangi (KP70065004 - Praktikum 2)
+-- VERIKA Academic System (KP70065004 - Praktikum 2)
 
 CREATE DATABASE IF NOT EXISTS `zero_trust_db`
   CHARACTER SET utf8mb4

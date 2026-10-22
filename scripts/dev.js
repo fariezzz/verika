@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
 console.log('\x1b[1;32m====================================================\x1b[0m');
-console.log('\x1b[1;32m SISTEM NILAI AKADEMIK ZERO TRUST - UNSIL SINTESYS  \x1b[0m');
+console.log('\x1b[1;32m SISTEM NILAI AKADEMIK ZERO TRUST - VERIKA          \x1b[0m');
 console.log('\x1b[1;32m====================================================\x1b[0m');
 console.log('• Gateway (PEP):    http://localhost:3000');
 console.log('• Service Nilai:    http://localhost:3001 (Internal only)');

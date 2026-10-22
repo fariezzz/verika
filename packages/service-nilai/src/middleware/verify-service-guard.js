@@ -5,7 +5,7 @@
 import { verifyToken } from '@zero-trust/shared';
 
 export function verifyServiceGuard(req, res, next) {
-  const expectedGatewaySecret = process.env.GATEWAY_SECRET || 'gw_secret_internal_zero_trust_unsil_2026';
+  const expectedGatewaySecret = process.env.GATEWAY_SECRET || 'gw_secret_internal_zero_trust_verika_2026';
   const receivedGatewaySecret = req.headers['x-gateway-secret'];
 
   // 1. Verifikasi Gateway Secret (Mencegah direct access ke port service tanpa melalui Gateway)

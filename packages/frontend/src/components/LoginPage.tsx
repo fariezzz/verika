@@ -1,72 +1,83 @@
 // packages/frontend/src/components/LoginPage.tsx
-// Halaman Masuk "Gapura Access" Universitas Siliwangi bergaya SINTESYS dengan Verifikasi Konteks Zero Trust
+// Halaman Masuk "VERIKA Access" dengan Verifikasi Konteks Zero Trust
 
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { UserIcon, LockIcon, DeviceIcon, EyeIcon, EyeOffIcon, ShieldIcon, AlertTriangleIcon } from './Icons';
+import { UserIcon, LockIcon, DeviceIcon, EyeIcon, EyeOffIcon, ShieldIcon, AlertTriangleIcon, RefreshCwIcon } from './Icons';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
-  const [username, setUsername] = useState('247006111146');
-  const [password, setPassword] = useState('password123');
-  const [deviceId, setDeviceId] = useState('DEV-MHS-001');
+  // Form diawali kosong secara default
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+  const [selectedDemo, setSelectedDemo] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Akun Cepat Demo untuk keperluan pengujian dan evaluasi tugas praktikum
+  // Popup Modal saat Login Gagal
+  const [showErrorPopup, setShowErrorPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+
+  // Akun Cepat Demo untuk keperluan pengujian dan evaluasi praktikum
   const demoAccounts = [
+    { label: '-- Pilih Akun Demo (Opsional) --', u: '', p: '', d: '' },
     { label: 'Mahasiswa: Muhammad Fariez (247006111146)', u: '247006111146', p: 'password123', d: 'DEV-MHS-001' },
     { label: 'Mahasiswa: Fathir Rizki (247006111147)', u: '247006111147', p: 'password123', d: 'DEV-MHS-002' },
-    { label: 'Dosen: Vega Purwayoga (dosen_vega)', u: 'dosen_vega', p: 'password123', d: 'DEV-DSN-001' },
-    { label: 'Dosen: Alam Rahmatulloh (dosen_alam)', u: 'dosen_alam', p: 'password123', d: 'DEV-DSN-002' },
-    { label: 'Admin: Admin Akademik (admin)', u: 'admin', p: 'password123', d: 'DEV-ADM-001' },
-    { label: '[UJI TOLAK] Device Tidak Terdaftar', u: '247006111146', p: 'password123', d: 'DEV-UNKNOWN-999' }
+    { label: 'Mahasiswa: Aditya Pratama (247006111148)', u: '247006111148', p: 'password123', d: 'DEV-MHS-003' },
+    { label: 'Dosen: Ir. Alam Rahmatulloh - Keamanan Informasi', u: 'dosen_alam', p: 'password123', d: 'DEV-DSN-001' },
+    { label: 'Dosen: Dr. Ir. Aradea, S.T., M.T. - Inteligensi Artifisial', u: 'dosen_aradea', p: 'password123', d: 'DEV-DSN-002' },
+    { label: 'Dosen: Ir. Randi Rizal, Ph.D. - Komputasi Paralel & Terdistribusi', u: 'dosen_randi', p: 'password123', d: 'DEV-DSN-003' },
+    { label: 'Dosen: Dr. Ir. R Reza El Akbar - Pengujian & Implementasi Sistem', u: 'dosen_reza', p: 'password123', d: 'DEV-DSN-004' },
+    { label: 'Dosen: Dr. Ir. Eka Wahyu Hidayat - Teori Bahasa & Otomata', u: 'dosen_eka', p: 'password123', d: 'DEV-DSN-005' },
+    { label: 'Dosen: Ir. Firmansyah M.S.N. - Komputasi Awan', u: 'dosen_firmansyah', p: 'password123', d: 'DEV-DSN-006' },
+    { label: 'Admin: Admin Akademik Pusat (admin)', u: 'admin', p: 'password123', d: 'DEV-ADM-001' },
+    { label: '[Uji Ditolak] Device ID Tidak Terdaftar', u: '247006111146', p: 'password123', d: 'DEV-UNKNOWN-999' }
   ];
 
   const handleSelectDemo = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selected = demoAccounts.find((acc) => acc.label === e.target.value);
-    if (selected) {
+    const val = e.target.value;
+    setSelectedDemo(val);
+    const selected = demoAccounts.find((acc) => acc.label === val);
+    if (selected && selected.u) {
       setUsername(selected.u);
       setPassword(selected.p);
       setDeviceId(selected.d);
-      setError(null);
+    } else {
+      setUsername('');
+      setPassword('');
+      setDeviceId('');
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
     setIsSubmitting(true);
 
     try {
       await login(username, password, deviceId);
     } catch (err: any) {
-      setError(err?.message || 'Login gagal. Periksa kembali username, password, dan perangkat Anda.');
+      const errMsg = err?.message || 'Login gagal. Periksa kembali username, password, dan perangkat Anda.';
+      setPopupMessage(errMsg);
+      setShowErrorPopup(true);
+
+      // Reset form menjadi kosong semua sesuai instruksi
+      setUsername('');
+      setPassword('');
+      setDeviceId('');
+      setSelectedDemo('');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
-      {/* Sisi Kiri: Banner Hero Visual Kampus Universitas Siliwangi */}
-      <div
-        style={{
-          flex: 1.1,
-          backgroundColor: '#0a3829',
-          backgroundImage: 'radial-gradient(circle at 20% 30%, #166534 0%, #064e3b 70%, #022c22 100%)',
-          color: '#ffffff',
-          padding: '60px 48px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
+    <div className="login-layout">
+      {/* Sisi Kiri: Banner Hero Visual Kampus */}
+      <div className="login-hero-panel">
         {/* Ornamen Grafis Lingkaran Modern */}
         <div
+          className="login-decor"
           style={{
             position: 'absolute',
             top: '-10%',
@@ -79,6 +90,7 @@ export const LoginPage: React.FC = () => {
           }}
         />
         <div
+          className="login-decor"
           style={{
             position: 'absolute',
             bottom: '5%',
@@ -93,14 +105,11 @@ export const LoginPage: React.FC = () => {
 
         {/* Header Visual */}
         <div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '999px', background: 'rgba(255, 255, 255, 0.12)', backdropFilter: 'blur(8px)', fontSize: '13px', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '24px' }}>
-            <ShieldIcon size={16} /> NIST SP 800-207 ZERO TRUST SECURITY
-          </div>
           <h1 style={{ fontSize: '38px', fontWeight: 800, lineHeight: 1.2, marginBottom: '16px' }}>
-            SINTESYS
+            VERIKA
           </h1>
           <p style={{ fontSize: '18px', fontWeight: 300, fontStyle: 'italic', opacity: 0.9, marginBottom: '8px' }}>
-            Siliwangi Integrated Systems
+            Verifikasi & Informasi Nilai Akademik Terpadu
           </p>
           <p style={{ fontSize: '14px', opacity: 0.75, maxWidth: '440px' }}>
             Portal Akademik Nilai & Transkrip Terpadu dengan Kebijakan Keamanan Berbasis Kebijakan (Policy Enforcement Point).
@@ -108,7 +117,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Ringkasan Konteks Arsitektur */}
-        <div style={{ background: 'rgba(0, 0, 0, 0.25)', padding: '24px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(6px)', maxWidth: '520px' }}>
+        <div className="rules-card" style={{ background: 'rgba(0, 0, 0, 0.25)', padding: '24px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(6px)', maxWidth: '520px' }}>
           <div style={{ fontSize: '13px', fontWeight: 700, color: '#86efac', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Aturan Keamanan Akses:
           </div>
@@ -120,46 +129,36 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Footer Banner */}
-        <div style={{ fontSize: '12px', opacity: 0.6, letterSpacing: '0.5px' }}>
-          GEDUNG KULIAH TERPADU DAN LABORATORIUM FAKULTAS TEKNIK UNIVERSITAS SILIWANGI
+        <div className="footer-campus" style={{ fontSize: '12px', opacity: 0.6, letterSpacing: '0.5px' }}>
+          GEDUNG PUSAT PEMBELAJARAN DAN LABORATORIUM TERPADU
         </div>
       </div>
 
-      {/* Sisi Kanan: Formulir Masuk "Gapura Access" */}
-      <div
-        style={{
-          flex: 1,
-          backgroundColor: '#ffffff',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          padding: '40px'
-        }}
-      >
+      {/* Sisi Kanan: Formulir Masuk "VERIKA Access" */}
+      <div className="login-form-panel">
         <div style={{ width: '100%', maxWidth: '420px' }}>
-          {/* Header Gapura Access */}
+          {/* Header VERIKA Access */}
           <div style={{ marginBottom: '28px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#0e4b37', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
                 <ShieldIcon size={18} />
               </div>
               <span style={{ fontSize: '14px', fontWeight: 700, color: '#64748b' }}>
-                UNIVERSITAS SILIWANGI
+                PORTAL AKADEMIK TERPADU
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
               <div>
                 <h2 style={{ fontSize: '26px', fontWeight: 800, color: '#0e4b37' }}>
-                  Gapura Access
+                  VERIKA Access
                 </h2>
                 <p style={{ fontSize: '13px', color: '#64748b' }}>
                   Satu Pintu Akses Layanan Akademik
                 </p>
               </div>
-              <span className="badge badge-success" style={{ fontSize: '11px', padding: '4px 10px' }}>
-                Wilujeng Sumping
+              <span className="badge badge-success" style={{ fontSize: '11px', padding: '4px 10px', height: 'fit-content' }}>
+                Selamat Datang
               </span>
             </div>
           </div>
@@ -167,9 +166,10 @@ export const LoginPage: React.FC = () => {
           {/* Quick Demo Picker (Mempermudah Pengujian Tugas Praktikum) */}
           <div style={{ marginBottom: '20px', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
             <label className="form-label" style={{ fontSize: '12px', color: '#475569', marginBottom: '4px' }}>
-              Pilih Akun Demo Pengujian:
+              Pilih Akun Demo Pengujian (Opsional):
             </label>
             <select
+              value={selectedDemo}
               onChange={handleSelectDemo}
               style={{
                 width: '100%',
@@ -189,29 +189,6 @@ export const LoginPage: React.FC = () => {
               ))}
             </select>
           </div>
-
-          {/* Error Banner */}
-          {error && (
-            <div
-              style={{
-                marginBottom: '20px',
-                padding: '12px 16px',
-                background: '#fef2f2',
-                border: '1px solid #fecaca',
-                borderRadius: '8px',
-                color: '#b91c1c',
-                fontSize: '13px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '10px'
-              }}
-            >
-              <AlertTriangleIcon size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-              <div>
-                <strong>Akses Ditolak:</strong> {error}
-              </div>
-            </div>
-          )}
 
           {/* Form Login */}
           <form onSubmit={handleSubmit}>
@@ -290,20 +267,70 @@ export const LoginPage: React.FC = () => {
                 padding: '12px',
                 marginTop: '12px',
                 fontSize: '15px',
-                borderRadius: '8px'
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
               }}
             >
-              {isSubmitting ? 'Memverifikasi Kebijakan...' : 'Masuk'}
+              {isSubmitting ? (
+                <>
+                  <RefreshCwIcon size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                  <span>Memverifikasi...</span>
+                </>
+              ) : (
+                'Masuk'
+              )}
             </button>
           </form>
 
           {/* Footer Card */}
           <div style={{ marginTop: '32px', paddingTop: '20px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#94a3b8' }}>
-            <span>BSrE Terverifikasi</span>
-            <span>© 2020 – 2026 Universitas Siliwangi</span>
+            <span>Sistem Terverifikasi Digital</span>
+            <span>© 2020 – 2026 VERIKA Academic</span>
           </div>
         </div>
       </div>
+
+      {/* Popup Modal Saat Login Gagal */}
+      {showErrorPopup && (
+        <div className="modal-overlay" style={{ zIndex: 1200 }}>
+          <div className="modal-content" style={{ maxWidth: '420px', textAlign: 'center', padding: '28px 24px' }}>
+            <div
+              style={{
+                width: '52px',
+                height: '52px',
+                borderRadius: '50%',
+                background: '#fef2f2',
+                color: '#dc2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px',
+                border: '1px solid #fecaca'
+              }}
+            >
+              <AlertTriangleIcon size={26} />
+            </div>
+            <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', marginBottom: '8px' }}>
+              Autentikasi Gagal
+            </h3>
+            <p style={{ fontSize: '13px', color: '#64748b', marginBottom: '22px', lineHeight: 1.5 }}>
+              {popupMessage}
+            </p>
+            <button
+              onClick={() => {
+                setShowErrorPopup(false);
+              }}
+              className="btn btn-primary"
+              style={{ width: '100%', padding: '11px', fontSize: '13px', borderRadius: '6px' }}
+            >
+              Tutup & Masukkan Ulang
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

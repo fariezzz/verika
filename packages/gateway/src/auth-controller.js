@@ -338,7 +338,7 @@ export async function handleServiceToken(req, res) {
   const { client_id, client_secret } = req.body || {};
   const ipAddress = req.ip || req.socket.remoteAddress;
 
-  const validClientId = process.env.SERVICE_NILAI_CLIENT_ID || 'service-nilai-unsil';
+  const validClientId = process.env.SERVICE_NILAI_CLIENT_ID || 'service-nilai-verika';
   const validClientSecret = process.env.SERVICE_NILAI_CLIENT_SECRET || 'svc_nilai_secret_key_9876543210';
 
   if (!client_id || !client_secret || client_id !== validClientId || client_secret !== validClientSecret) {

@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(() => {
-    return localStorage.getItem('last_device_id') || 'DEV-MHS-001';
+    return localStorage.getItem('last_device_id') || null;
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -66,28 +66,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (username: string, password: string, selectedDeviceId: string) => {
-    setIsLoading(true);
-    try {
-      api.setCredentials(null, selectedDeviceId);
-      const resp = await api.post<{
-        message: string;
-        user: User;
-        accessToken: string;
-        refreshToken: string;
-      }>('/auth/login', {
-        username,
-        password,
-        device_id: selectedDeviceId
-      });
+    api.setCredentials(null, selectedDeviceId);
+    const resp = await api.post<{
+      message: string;
+      user: User;
+      accessToken: string;
+      refreshToken: string;
+    }>('/auth/login', {
+      username,
+      password,
+      device_id: selectedDeviceId
+    });
 
-      setUser(resp.user);
-      setToken(resp.accessToken);
-      setDeviceId(selectedDeviceId);
-      localStorage.setItem('last_device_id', selectedDeviceId);
-      api.setCredentials(resp.accessToken, selectedDeviceId);
-    } finally {
-      setIsLoading(false);
-    }
+    setUser(resp.user);
+    setToken(resp.accessToken);
+    setDeviceId(selectedDeviceId);
+    localStorage.setItem('last_device_id', selectedDeviceId);
+    api.setCredentials(resp.accessToken, selectedDeviceId);
   };
 
   const logout = async () => {

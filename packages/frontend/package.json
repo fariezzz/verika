@@ -1,7 +1,7 @@
 {
   "name": "@zero-trust/frontend",
   "version": "1.0.0",
-  "description": "Frontend Web Sistem Nilai Zero Trust - SINTESYS UNSIL Style",
+  "description": "Frontend Web Sistem Nilai Zero Trust - VERIKA Academic",
   "type": "module",
   "scripts": {
     "dev": "vite",

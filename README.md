@@ -1,11 +1,10 @@
 # Sistem Nilai Akademik Berbasis Zero Trust Security (NIST SP 800-207)
 
-Aplikasi web Sistem Nilai dan Transkrip Akademik terintegrasi yang mengimplementasikan arsitektur keamanan **Zero Trust** langsung pada level aplikasi. Dibangun untuk memenuhi Tugas Praktikum Individu mata kuliah **Keamanan Informasi (KP70065004)**, Jurusan Informatika, Fakultas Teknik, Universitas Siliwangi.
+Aplikasi web Sistem Nilai dan Transkrip Akademik yang mengimplementasikan arsitektur **Zero Trust**. Dibangun untuk memenuhi Tugas Praktikum Individu mata kuliah **Keamanan Informasi**.
 
 - **Nama Mahasiswa:** MUHAMMAD FARIEZ RIZIQ ILHAM
 - **NIM:** 247006111146
-- **Kelas:** Informatika E
-- **Dosen Pengampu:** Vega Purwayoga, S.Kom., M.Kom.
+- **Kelas:** E
 
 ---
 
@@ -82,7 +81,7 @@ Sistem ini menerapkan tiga pilar utama Zero Trust (NIST SP 800-207):
 
 ## 3. Teknologi yang Digunakan
 
-- **Frontend:** React 19 + TypeScript + Vite (Port 5173). Desain antarmuka akademik resmi Universitas Siliwangi (SINTESYS & Gapura Access).
+- **Frontend:** React 19 + TypeScript + Vite (Port 5173). Desain antarmuka akademik modern (VERIKA Academic).
 - **Backend API Gateway:** Express (Port 3000) bertindak sebagai Policy Enforcement Point (PEP) & Policy Administrator (PA).
 - **Service Nilai:** Express (Port 3001) untuk pengelolaan nilai dan kelas.
 - **Service Transkrip:** Express (Port 3002) untuk pengelolaan transkrip akademik mahasiswa.
@@ -212,9 +211,20 @@ Seluruh akun demo menggunakan kata sandi: **`password123`**
 | **Mahasiswa** | `247006111146` | MUHAMMAD FARIEZ RIZIQ ILHAM | `DEV-MHS-001` | Nilai miliknya & Transkrip IPK 3.90 (84 SKS) |
 | **Mahasiswa** | `247006111147` | Fathir Rizki Fadillah | `DEV-MHS-002` | Nilai & transkrip pribadi |
 | **Mahasiswa** | `247006111148` | Aditya Pratama | `DEV-MHS-003` | Nilai & transkrip pribadi |
-| **Dosen** | `dosen_vega` | Vega Purwayoga, S.Kom., M.Kom. | `DEV-DSN-001` | Mengampu Kelas Keamanan Informasi (KP70065004 - Kelas E) |
-| **Dosen** | `dosen_alam` | Alam Rahmatulloh, S.T., M.T. | `DEV-DSN-002` | Mengampu Kelas Inteligensi Artifisial (IF70063001 - Kelas A) |
-| **Admin** | `admin` | Admin Akademik UNSIL | `DEV-ADM-001` | Transkrip seluruh mahasiswa & Audit Log PEP |
+| **Mahasiswa** | `247006111149` | Naufal Fauzan | `DEV-MHS-004` | Nilai & transkrip pribadi |
+| **Mahasiswa** | `247006111150` | Salsa Sabila | `DEV-MHS-005` | Nilai & transkrip pribadi |
+| **Mahasiswa** | `247006111151` | Raihan Alamsyah | `DEV-MHS-006` | Nilai & transkrip pribadi |
+| **Mahasiswa** | `247006111152` | Zahra Aulia | `DEV-MHS-007` | Nilai & transkrip pribadi |
+| **Mahasiswa** | `247006111153` | Daffa Ramadhan | `DEV-MHS-008` | Nilai & transkrip pribadi |
+| **Mahasiswa** | `247006111154` | Putri Rahmawati | `DEV-MHS-009` | Nilai & transkrip pribadi |
+| **Mahasiswa** | `247006111155` | Dimas Saputra | `DEV-MHS-010` | Nilai & transkrip pribadi |
+| **Dosen** | `dosen_alam` | Ir. Alam Rahmatulloh, S.T., M.T., MCE., IPM. | `DEV-DSN-001` | Keamanan Informasi (KP70065004 - Kelas E) |
+| **Dosen** | `dosen_aradea` | Dr. Ir. Aradea, S.T., M.T., CIRR. | `DEV-DSN-002` | Inteligensi Artifisial (KP70065001 - Kelas A) |
+| **Dosen** | `dosen_randi` | Ir. Randi Rizal, Ph.D. | `DEV-DSN-003` | Komputasi Paralel & Terdistribusi (KP70065002 - Kelas B) |
+| **Dosen** | `dosen_reza` | Dr. Ir. R Reza El Akbar, S.Si., M.T., M.Kom. | `DEV-DSN-004` | Pengujian & Implementasi Sistem (KP70065007 - Kelas A) |
+| **Dosen** | `dosen_eka` | Dr. Ir. Eka Wahyu Hidayat, S.T., M.T., MCE. | `DEV-DSN-005` | Teori Bahasa dan Otomata (KP70065006 - Kelas A) |
+| **Dosen** | `dosen_firmansyah` | Ir. Firmansyah M.S.N., S.T., M.Kom., IPM. | `DEV-DSN-006` | Komputasi Awan (KP70065005 - Kelas A) |
+| **Admin** | `admin` | Admin Akademik Pusat | `DEV-ADM-001` | Transkrip seluruh mahasiswa & Audit Log PEP |
 
 *Catatan Pengujian Zero Trust:*
 - Untuk menguji penolakan perangkat tidak terdaftar, gunakan Device ID acak seperti: `DEV-UNKNOWN-999` (akan ditolak dengan kode status 403 Forbidden).
@@ -240,18 +250,18 @@ TRANSKRIP_PORT=3002
 FRONTEND_PORT=5173
 
 # Rahasia Token JWT
-JWT_ACCESS_SECRET=zero_trust_access_super_secret_key_2026_unsil
-JWT_REFRESH_SECRET=zero_trust_refresh_super_secret_key_2026_unsil
+JWT_ACCESS_SECRET=zero_trust_access_super_secret_key_2026_verika
+JWT_REFRESH_SECRET=zero_trust_refresh_super_secret_key_2026_verika
 JWT_ACCESS_EXPIRES_IN=10m
 JWT_REFRESH_EXPIRES_IN=1d
 
 # Kredensial Service Nilai (Inter-service Authentication)
-SERVICE_NILAI_CLIENT_ID=service-nilai-unsil
+SERVICE_NILAI_CLIENT_ID=service-nilai-verika
 SERVICE_NILAI_CLIENT_SECRET=svc_nilai_secret_key_9876543210
 JWT_SERVICE_EXPIRES_IN=5m
 
 # Kunci Rahasia Internal Gateway (Defense-in-depth)
-GATEWAY_SECRET=gw_secret_internal_zero_trust_unsil_2026
+GATEWAY_SECRET=gw_secret_internal_zero_trust_verika_2026
 
 # Kebijakan Jam Akses Operasional (Asia/Jakarta)
 APP_TIMEZONE=Asia/Jakarta
@@ -318,7 +328,14 @@ npm test
 
 ---
 
-## 12. Panduan Pengujian Manual Menggunakan cURL
+## 12. Panduan Pengujian Manual Menggunakan Postman & cURL
+
+### A. Pengujian Menggunakan Postman
+Berkas koleksi Postman yang telah terkonfigurasi lengkap dapat diimpor langsung ke aplikasi Postman:
+- **Lokasi Berkas:** `docs/VERIKA-Zero-Trust.postman_collection.json`
+- **Fitur Koleksi:** Berisi seluruh skenario pengujian (Login valid/invalid, Verifikasi Device ID, Akses Nilai, Edit Nilai, Finalisasi, Transkrip pribadi vs orang lain, Sinkronisasi Service Token, dan Direct Port Access 3001/3002).
+
+### B. Pengujian Menggunakan cURL
 
 Berikut adalah contoh perintah cURL untuk mendemonstrasikan perilaku Zero Trust:
 

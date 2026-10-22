@@ -4,8 +4,8 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'zero_trust_access_super_secret_key_2026_unsil';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'zero_trust_refresh_super_secret_key_2026_unsil';
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'zero_trust_access_super_secret_key_2026_verika';
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'zero_trust_refresh_super_secret_key_2026_verika';
 
 /**
  * Menghasilkan Access Token JWT (berlaku 10 menit)
