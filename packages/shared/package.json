@@ -1,0 +1,13 @@
+{
+  "name": "@zero-trust/shared",
+  "version": "1.0.0",
+  "description": "Shared utilities for Zero Trust system (db, jwt, time, audit)",
+  "type": "module",
+  "main": "src/index.js",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.4.7",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.12.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "name": "zero-trust-system",
+  "version": "1.0.0",
+  "description": "Sistem Nilai Akademik dengan Arsitektur Zero Trust (NIST SP 800-207)",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "db:migrate": "node database/migrate.js",
+    "db:seed": "node database/seed.js",
+    "start:gateway": "node packages/gateway/src/server.js",
+    "start:nilai": "node packages/service-nilai/src/server.js",
+    "start:transkrip": "node packages/service-transkrip/src/server.js",
+    "dev:backend": "node scripts/start-all-services.js",
+    "dev:frontend": "npm run dev --workspace=@zero-trust/frontend",
+    "dev": "node scripts/dev.js",
+    "test": "node --test test/*.test.js",
+    "build:frontend": "npm run build --workspace=@zero-trust/frontend"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7"
+  }
+}
