@@ -228,9 +228,9 @@ async function runSeed() {
       }
     }
 
-    // Tambahkan juga Fariez ke kelas historis yang sudah final (Pemrograman Web)
-    classStudentRows.push([classMap['IF70063004'], userMap['247006111146']]);
-    gradeRows.push([classMap['IF70063004'], userMap['247006111146'], 92.00, 'A', 4.00, true]);
+    // Hubungkan mahasiswa Dimas ke kelas historis yang sudah final (Pemrograman Web) untuk pengujian status final
+    classStudentRows.push([classMap['IF70063004'], userMap['247006111155']]);
+    gradeRows.push([classMap['IF70063004'], userMap['247006111155'], 92.00, 'A', 4.00, true]);
 
     for (const cs of classStudentRows) {
       await connection.query(

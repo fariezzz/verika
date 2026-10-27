@@ -11,7 +11,7 @@ export const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'transkrip' | 'audit'>('transkrip');
 
   // State Transkrip
-  const [searchNim, setSearchNim] = useState('247006111146');
+  const [searchNim, setSearchNim] = useState('');
   const [transkripData, setTranskripData] = useState<TranskripResponse | null>(null);
   const [isLoadingTranskrip, setIsLoadingTranskrip] = useState(false);
   const [transkripError, setTranskripError] = useState<string | null>(null);
@@ -22,15 +22,16 @@ export const AdminDashboard: React.FC = () => {
   const [auditFilter, setAuditFilter] = useState<'ALL' | 'ALLOW' | 'DENY'>('ALL');
 
   // Ambil Transkrip Mahasiswa
-  const handleSearchTranskrip = async (e?: React.FormEvent) => {
+  const handleSearchTranskrip = async (e?: React.FormEvent, nimToSearch?: string) => {
     if (e) e.preventDefault();
-    if (!searchNim.trim()) return;
+    const target = (nimToSearch !== undefined ? nimToSearch : searchNim).trim();
+    if (!target) return;
 
     setIsLoadingTranskrip(true);
     setTranskripError(null);
 
     try {
-      const resp = await api.get<TranskripResponse>(`/transkrip/${searchNim.trim()}`);
+      const resp = await api.get<TranskripResponse>(`/transkrip/${target}`);
       setTranskripData(resp);
     } catch (err: any) {
       setTranskripError(err?.message || 'Gagal memuat transkrip mahasiswa');
@@ -54,7 +55,6 @@ export const AdminDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    handleSearchTranskrip();
     fetchAuditLogs();
   }, []);
 
@@ -117,7 +117,7 @@ export const AdminDashboard: React.FC = () => {
                     type="text"
                     className="form-input"
                     style={{ padding: '9px 12px 9px 38px', fontSize: '13px' }}
-                    placeholder="Contoh: 247006111146, 247006111147, 247006111148"
+                    placeholder="Masukkan NIM mahasiswa (contoh: 247006111146, 247006111147)"
                     value={searchNim}
                     onChange={(e) => setSearchNim(e.target.value)}
                   />
@@ -132,6 +132,35 @@ export const AdminDashboard: React.FC = () => {
                 {isLoadingTranskrip ? 'Mencari...' : 'Lihat Transkrip'}
               </button>
             </form>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', fontSize: '12px', color: '#64748b', flexWrap: 'wrap' }}>
+              <span>Pilih Cepat:</span>
+              {[
+                { nim: '247006111146', nama: 'Fariez' },
+                { nim: '247006111147', nama: 'Fathir' },
+                { nim: '247006111148', nama: 'Aditya' }
+              ].map((item) => (
+                <button
+                  key={item.nim}
+                  type="button"
+                  onClick={() => {
+                    setSearchNim(item.nim);
+                    handleSearchTranskrip(undefined, item.nim);
+                  }}
+                  style={{
+                    background: '#f1f5f9',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                    color: '#334155',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {item.nim} ({item.nama})
+                </button>
+              ))}
+            </div>
           </div>
 
           {transkripError && (
@@ -140,7 +169,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
           )}
 
-          {transkripData && (
+          {transkripData ? (
             <div>
               {/* Info Mahasiswa yang Ditemukan */}
               <div className="card" style={{ padding: '20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -220,7 +249,17 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               ))}
             </div>
-          )}
+          ) : !transkripError && !isLoadingTranskrip ? (
+            <div className="card" style={{ padding: '36px 20px', textAlign: 'center', color: '#64748b' }}>
+              <GraduationCapIcon size={32} style={{ margin: '0 auto 10px', color: '#94a3b8' }} />
+              <div style={{ fontSize: '14px', fontWeight: 600, color: '#334155' }}>
+                Pencarian Transkrip Mahasiswa
+              </div>
+              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                Masukkan NIM mahasiswa pada form di atas atau klik salah satu NIM pilihan cepat untuk melihat transkrip akademik resmi.
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : (
         /* Tab 2: Audit Log Viewer (PEP NIST SP 800-207) */

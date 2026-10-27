@@ -193,7 +193,8 @@ app.use(async (req, res) => {
 });
 
 // Jalankan Gateway
-if (process.env.NODE_ENV !== 'test') {
+const isTest = process.env.NODE_ENV === 'test' || process.argv.some((arg) => arg.includes('test'));
+if (!isTest) {
   app.listen(PORT, () => {
     console.log(`[PEP GATEWAY] Policy Enforcement Point aktif di http://localhost:${PORT}`);
   });

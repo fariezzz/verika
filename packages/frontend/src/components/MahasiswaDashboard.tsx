@@ -40,9 +40,19 @@ export const MahasiswaDashboard: React.FC = () => {
     fetchData();
   }, [user]);
 
-  // Hitung total SKS semester berjalan
-  const totalSksKhs = nilaiList.reduce((acc, item) => acc + (item.sks || 0), 0);
-  const activeSemesterCode = nilaiList[0]?.semester || '20261';
+  // Kelompokkan KHS berdasarkan semester secara terpisah
+  const khsBySemester = React.useMemo(() => {
+    const groups: Record<string, { semester: string; mata_kuliah: NilaiItem[]; totalSks: number }> = {};
+    for (const item of nilaiList) {
+      const sem = item.semester || '20261';
+      if (!groups[sem]) {
+        groups[sem] = { semester: sem, mata_kuliah: [], totalSks: 0 };
+      }
+      groups[sem].mata_kuliah.push(item);
+      groups[sem].totalSks += (item.sks || 0);
+    }
+    return Object.values(groups).sort((a, b) => b.semester.localeCompare(a.semester));
+  }, [nilaiList]);
 
   return (
     <div className="container" style={{ padding: '24px 20px' }}>
@@ -84,10 +94,10 @@ export const MahasiswaDashboard: React.FC = () => {
             {/* Identitas Mahasiswa */}
             <div style={{ marginBottom: '18px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
-                {user?.nama || 'MUHAMMAD FARIEZ RIZIQ ILHAM'}
+                {user?.nama || '-'}
               </h2>
               <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>
-                NIM: {user?.identifier || '247006111146'}
+                NIM: {user?.identifier || '-'}
               </div>
             </div>
 
@@ -120,7 +130,7 @@ export const MahasiswaDashboard: React.FC = () => {
                   IPK Kumulatif
                 </div>
                 <div style={{ fontSize: '22px', fontWeight: 800, color: '#581c87', marginTop: '2px' }}>
-                  {transkrip?.ringkasan.ipk || '3.90'}
+                  {transkrip?.ringkasan ? transkrip.ringkasan.ipk : '-'}
                 </div>
               </div>
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '12px 10px', textAlign: 'center' }}>
@@ -128,7 +138,7 @@ export const MahasiswaDashboard: React.FC = () => {
                   SKS Lulus
                 </div>
                 <div style={{ fontSize: '22px', fontWeight: 800, color: '#14532d', marginTop: '2px' }}>
-                  {transkrip?.ringkasan.total_sks || '84'}
+                  {transkrip?.ringkasan ? transkrip.ringkasan.total_sks : '-'}
                 </div>
               </div>
             </div>
@@ -188,70 +198,72 @@ export const MahasiswaDashboard: React.FC = () => {
               <div style={{ marginTop: '8px', fontSize: '13px' }}>Memuat data akademik...</div>
             </div>
           ) : activeTab === 'khs' ? (
-            /* Tab 1: KHS Mahasiswa Semester Berjalan */
+            /* Tab 1: KHS Mahasiswa Per Semester */
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#3d5a45', color: '#ffffff', padding: '12px 18px', borderRadius: '8px 8px 0 0', flexWrap: 'wrap', gap: '8px' }}>
-                <span style={{ fontWeight: 700, fontSize: '13px' }}>
-                  {formatSemester(activeSemesterCode)}
-                </span>
-                <div style={{ display: 'flex', gap: '14px', fontSize: '12px' }}>
-                  <span>Total SKS: <strong>{totalSksKhs}</strong></span>
-                  <span>Mata Kuliah: <strong>{nilaiList.length}</strong></span>
+              {khsBySemester.length === 0 ? (
+                <div className="card" style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>
+                  Belum ada nilai yang terdaftar untuk semester ini.
                 </div>
-              </div>
+              ) : (
+                khsBySemester.map((semGroup, sIdx) => (
+                  <div key={sIdx} style={{ marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#3d5a45', color: '#ffffff', padding: '12px 18px', borderRadius: '8px 8px 0 0', flexWrap: 'wrap', gap: '8px' }}>
+                      <span style={{ fontWeight: 700, fontSize: '13px' }}>
+                        {formatSemester(semGroup.semester)}
+                      </span>
+                      <div style={{ display: 'flex', gap: '14px', fontSize: '12px' }}>
+                        <span>Total SKS: <strong>{semGroup.totalSks}</strong></span>
+                        <span>Mata Kuliah: <strong>{semGroup.mata_kuliah.length}</strong></span>
+                      </div>
+                    </div>
 
-              <div className="table-container" style={{ borderRadius: '0 0 8px 8px' }}>
-                <table className="academic-table" style={{ minWidth: '650px' }}>
-                  <thead>
-                    <tr>
-                      <th style={{ width: '40px' }}>#</th>
-                      <th style={{ width: '120px' }}>Kode MK</th>
-                      <th>Nama Mata Kuliah</th>
-                      <th style={{ textAlign: 'center', width: '60px' }}>SKS</th>
-                      <th style={{ textAlign: 'center', width: '90px' }}>Nilai Angka</th>
-                      <th style={{ textAlign: 'center', width: '80px' }}>Huruf</th>
-                      <th style={{ textAlign: 'center', width: '70px' }}>Bobot</th>
-                      <th>Dosen Pengampu</th>
-                      <th style={{ textAlign: 'center', width: '90px' }}>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {nilaiList.length === 0 ? (
-                      <tr>
-                        <td colSpan={9} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                          Belum ada nilai yang terdaftar untuk semester ini.
-                        </td>
-                      </tr>
-                    ) : (
-                      nilaiList.map((item, idx) => (
-                        <tr key={item.id}>
-                          <td>{idx + 1}</td>
-                          <td><code>{item.kode_mk}</code></td>
-                          <td style={{ fontWeight: 600 }}>{item.nama_mk}</td>
-                          <td style={{ textAlign: 'center' }}>{item.sks}</td>
-                          <td style={{ textAlign: 'center', fontWeight: 600 }}>{item.nilai_angka}</td>
-                          <td style={{ textAlign: 'center' }}>
-                            <span className="badge badge-primary">{item.nilai_huruf}</span>
-                          </td>
-                          <td style={{ textAlign: 'center' }}>{item.bobot}</td>
-                          <td style={{ fontSize: '12px', color: '#475569' }}>{item.dosen_pengampu}</td>
-                          <td style={{ textAlign: 'center' }}>
-                            {item.is_final ? (
-                              <span className="badge badge-success" title="Nilai telah berstatus final">
-                                <CheckCircleIcon size={12} /> Final
-                              </span>
-                            ) : (
-                              <span className="badge badge-warning" title="Nilai masih dalam bentuk draf">
-                                Draf
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                    <div className="table-container" style={{ borderRadius: '0 0 8px 8px' }}>
+                      <table className="academic-table" style={{ minWidth: '650px' }}>
+                        <thead>
+                          <tr>
+                            <th style={{ width: '40px' }}>#</th>
+                            <th style={{ width: '120px' }}>Kode MK</th>
+                            <th>Nama Mata Kuliah</th>
+                            <th style={{ textAlign: 'center', width: '60px' }}>SKS</th>
+                            <th style={{ textAlign: 'center', width: '90px' }}>Nilai Angka</th>
+                            <th style={{ textAlign: 'center', width: '80px' }}>Huruf</th>
+                            <th style={{ textAlign: 'center', width: '70px' }}>Bobot</th>
+                            <th>Dosen Pengampu</th>
+                            <th style={{ textAlign: 'center', width: '90px' }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {semGroup.mata_kuliah.map((item, idx) => (
+                            <tr key={item.id}>
+                              <td>{idx + 1}</td>
+                              <td><code>{item.kode_mk}</code></td>
+                              <td style={{ fontWeight: 600 }}>{item.nama_mk}</td>
+                              <td style={{ textAlign: 'center' }}>{item.sks}</td>
+                              <td style={{ textAlign: 'center', fontWeight: 600 }}>{item.nilai_angka}</td>
+                              <td style={{ textAlign: 'center' }}>
+                                <span className="badge badge-primary">{item.nilai_huruf}</span>
+                              </td>
+                              <td style={{ textAlign: 'center' }}>{item.bobot}</td>
+                              <td style={{ fontSize: '12px', color: '#475569' }}>{item.dosen_pengampu}</td>
+                              <td style={{ textAlign: 'center' }}>
+                                {item.is_final ? (
+                                  <span className="badge badge-success" title="Nilai telah berstatus final">
+                                    <CheckCircleIcon size={12} /> Final
+                                  </span>
+                                ) : (
+                                  <span className="badge badge-warning" title="Nilai masih dalam bentuk draf">
+                                    Draf
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           ) : (
             /* Tab 2: Transkrip Nilai Akademik Lengkap */
@@ -313,19 +325,19 @@ export const MahasiswaDashboard: React.FC = () => {
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>Total Semester</div>
                   <div style={{ fontSize: '20px', fontWeight: 800, color: '#6b21a8', marginTop: '2px' }}>
-                    {transkrip?.ringkasan.total_semester || 5}
+                    {transkrip?.ringkasan ? transkrip.ringkasan.total_semester : 0}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>SKS Lulus</div>
                   <div style={{ fontSize: '20px', fontWeight: 800, color: '#166534', marginTop: '2px' }}>
-                    {transkrip?.ringkasan.total_sks || 84}
+                    {transkrip?.ringkasan ? transkrip.ringkasan.total_sks : 0}
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase' }}>IPK Kumulatif</div>
                   <div style={{ fontSize: '20px', fontWeight: 800, color: '#1e40af', marginTop: '2px' }}>
-                    {transkrip?.ringkasan.ipk || '3.90'}
+                    {transkrip?.ringkasan ? transkrip.ringkasan.ipk : '0.00'}
                   </div>
                 </div>
               </div>

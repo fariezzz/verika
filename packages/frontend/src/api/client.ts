@@ -1,7 +1,7 @@
 // packages/frontend/src/api/client.ts
 // HTTP API Client - Seluruh request diarahkan strictly ke API Gateway (Port 3000)
 
-const GATEWAY_BASE_URL = 'http://localhost:3000';
+const GATEWAY_BASE_URL = (import.meta as any).env?.VITE_GATEWAY_URL || 'http://localhost:3000';
 
 class ApiClient {
   private token: string | null = null;

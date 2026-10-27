@@ -35,14 +35,35 @@ let tokenService = '';
 let refreshTokenMahasiswa1 = '';
 
 before(async () => {
-  // Jalankan ketiga server backend
-  serverNilai = http.createServer(nilaiApp);
-  serverTranskrip = http.createServer(transkripApp);
-  serverGateway = http.createServer(gatewayApp);
+  // Periksa apakah service backend sudah berjalan di port masing-masing
+  const isPortInUse = (port) => {
+    return new Promise((resolve) => {
+      const tester = http.createServer()
+        .once('error', () => resolve(true))
+        .once('listening', () => {
+          tester.close(() => resolve(false));
+        })
+        .listen(port, '127.0.0.1');
+    });
+  };
 
-  await new Promise((resolve) => serverNilai.listen(NILAI_PORT, '127.0.0.1', resolve));
-  await new Promise((resolve) => serverTranskrip.listen(TRANSKRIP_PORT, '127.0.0.1', resolve));
-  await new Promise((resolve) => serverGateway.listen(GATEWAY_PORT, '127.0.0.1', resolve));
+  const nilaiBusy = await isPortInUse(NILAI_PORT);
+  if (!nilaiBusy) {
+    serverNilai = http.createServer(nilaiApp);
+    await new Promise((resolve) => serverNilai.listen(NILAI_PORT, '127.0.0.1', resolve));
+  }
+
+  const transkripBusy = await isPortInUse(TRANSKRIP_PORT);
+  if (!transkripBusy) {
+    serverTranskrip = http.createServer(transkripApp);
+    await new Promise((resolve) => serverTranskrip.listen(TRANSKRIP_PORT, '127.0.0.1', resolve));
+  }
+
+  const gatewayBusy = await isPortInUse(GATEWAY_PORT);
+  if (!gatewayBusy) {
+    serverGateway = http.createServer(gatewayApp);
+    await new Promise((resolve) => serverGateway.listen(GATEWAY_PORT, '127.0.0.1', resolve));
+  }
 
   // Pastikan jam akses dalam rentang yang diizinkan untuk setup awal (10:00 WIB)
   setMockTime('2026-10-22T10:00:00+07:00');

@@ -24,4 +24,10 @@ Thumbs.db
 .vscode/
 .idea/
 *.tsbuildinfo
+~$*.docx
+
+# Dokumentasi & Skenario Pribadi (Lokal Saja)
+docs/skenario-demonstrasi.*
+docs/panduan-skenario-demonstrasi.*
+docs/demo-script.md
 verika.md

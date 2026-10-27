@@ -295,7 +295,8 @@ app.post('/kelas/:id/finalisasi', async (req, res) => {
   }
 });
 
-if (process.env.NODE_ENV !== 'test') {
+const isTest = process.env.NODE_ENV === 'test' || process.argv.some((arg) => arg.includes('test'));
+if (!isTest) {
   app.listen(PORT, () => {
     console.log(`[SERVICE NILAI] Aktif di http://localhost:${PORT}`);
   });
