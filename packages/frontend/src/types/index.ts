@@ -11,6 +11,14 @@ export interface User {
   deviceId?: string;
 }
 
+export interface AccessHoursConfig {
+  start: string;
+  end: string;
+  window: string;
+  timezone: string;
+  tzAbbr: string;
+}
+
 export interface NilaiItem {
   id: number;
   class_id: number;

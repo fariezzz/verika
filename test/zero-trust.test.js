@@ -302,9 +302,9 @@ describe('Zero Trust Security - 17 Skenario Pengujian Wajib', () => {
 
   // Skenario 10: Dosen ditolak saat mengubah nilai yang sudah final
   test('10. Dosen ditolak saat mengubah nilai yang sudah berstatus final (403 Forbidden)', async () => {
-    // Cari nilai yang sudah final (Kelas Komputasi Paralel dan Terdistribusi - IF70063002)
+    // Cari nilai yang sudah final milik Dosen Randi (Kelas Historis Pemrograman Web - IF70063004)
     const finalizedGradeRows = await query(
-      `SELECT n.id FROM nilai n WHERE n.is_final = 1 LIMIT 1`
+      `SELECT n.id FROM nilai n JOIN classes c ON n.class_id = c.id WHERE n.is_final = 1 AND c.dosen_id = (SELECT id FROM users WHERE username = 'dosen_randi') LIMIT 1`
     );
     const finalizedGradeId = finalizedGradeRows[0].id;
 

@@ -9,7 +9,7 @@ import { CheckCircleIcon, AlertTriangleIcon, RefreshCwIcon, EditIcon, ClockIcon 
 import { formatSemester } from '../utils/formatters';
 
 export const DosenDashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, accessHours } = useAuth();
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -112,10 +112,10 @@ export const DosenDashboard: React.FC = () => {
         </div>
 
         <div className="controls-group">
-          {/* Indikator Jam Operasional Khusus Dosen */}
+          {/* Indikator Jam Operasional Khusus Dosen (Dinamis dari Backend / .env) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '12px', color: '#475569', whiteSpace: 'nowrap' }}>
             <ClockIcon size={14} style={{ color: '#16a34a' }} />
-            <span>Jam Akses: <strong>07:00 – 21:00 WIB</strong></span>
+            <span>Jam Akses: <strong>{accessHours?.window || '07:00 – 21:00 WIB'}</strong></span>
           </div>
 
           <button

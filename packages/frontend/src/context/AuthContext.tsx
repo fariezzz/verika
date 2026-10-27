@@ -2,16 +2,18 @@
 // Manajemen Sesi dan Autentikasi Pengguna di Memori Frontend (Zero Trust Best Practice)
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { User } from '../types';
+import { User, AccessHoursConfig } from '../types';
 import { api } from '../api/client';
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
   deviceId: string | null;
+  accessHours: AccessHoursConfig | null;
   isLoading: boolean;
   login: (username: string, password: string, deviceId: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshAccessHours: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,7 +24,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [deviceId, setDeviceId] = useState<string | null>(() => {
     return localStorage.getItem('last_device_id') || null;
   });
+  const [accessHours, setAccessHours] = useState<AccessHoursConfig | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const fetchAccessHours = async () => {
+    try {
+      const resp = await api.get<{ user: any; access_hours?: AccessHoursConfig }>('/auth/me');
+      if (resp.access_hours) {
+        setAccessHours(resp.access_hours);
+      }
+    } catch {
+      // Abaikan jika belum login
+    }
+  };
 
   // Inisialisasi: Periksa apakah ada refresh token aktif di cookie atau sesi
   useEffect(() => {
@@ -40,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setToken(refreshResp.accessToken);
             api.setCredentials(refreshResp.accessToken, savedDevId);
 
-            const meResp = await api.get<{ user: any }>('/auth/me');
+            const meResp = await api.get<{ user: any; access_hours?: AccessHoursConfig }>('/auth/me');
             if (meResp.user) {
               setUser({
                 id: meResp.user.sub,
@@ -50,6 +64,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 identifier: meResp.user.identifier,
                 deviceId: savedDevId
               });
+            }
+            if (meResp.access_hours) {
+              setAccessHours(meResp.access_hours);
             }
           }
         }
@@ -83,6 +100,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setDeviceId(selectedDeviceId);
     localStorage.setItem('last_device_id', selectedDeviceId);
     api.setCredentials(resp.accessToken, selectedDeviceId);
+
+    // Ambil info jam akses dinamis setelah login
+    try {
+      const meResp = await api.get<{ user: any; access_hours?: AccessHoursConfig }>('/auth/me');
+      if (meResp.access_hours) {
+        setAccessHours(meResp.access_hours);
+      }
+    } catch {
+      // Abaikan jika gagal
+    }
   };
 
   const logout = async () => {
@@ -98,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, deviceId, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, deviceId, accessHours, isLoading, login, logout, refreshAccessHours: fetchAccessHours }}>
       {children}
     </AuthContext.Provider>
   );

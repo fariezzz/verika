@@ -18,6 +18,21 @@ export function clearMockTime() {
   mockTimeOverride = null;
 }
 
+export function getAccessHoursConfig() {
+  const timezone = process.env.APP_TIMEZONE || 'Asia/Jakarta';
+  const startConfig = process.env.GRADE_EDIT_START || '07:00';
+  const endConfig = process.env.GRADE_EDIT_END || '21:00';
+  const tzAbbr = timezone === 'Asia/Jakarta' ? 'WIB' : timezone === 'Asia/Makassar' ? 'WITA' : timezone === 'Asia/Jayapura' ? 'WIT' : timezone;
+
+  return {
+    start: startConfig,
+    end: endConfig,
+    window: `${startConfig} – ${endConfig} ${tzAbbr}`,
+    timezone,
+    tzAbbr
+  };
+}
+
 /**
  * Memeriksa apakah waktu saat ini berada di dalam rentang jam akses yang diizinkan.
  * Default: 07:00 - 21:00 WIB (Asia/Jakarta)
@@ -25,9 +40,10 @@ export function clearMockTime() {
  * @returns {{ allowed: boolean, currentTime: string, window: string, timezone: string }}
  */
 export function isWithinAccessHours(customDate = null) {
-  const timezone = process.env.APP_TIMEZONE || 'Asia/Jakarta';
-  const startConfig = process.env.GRADE_EDIT_START || '07:00';
-  const endConfig = process.env.GRADE_EDIT_END || '21:00';
+  const config = getAccessHoursConfig();
+  const timezone = config.timezone;
+  const startConfig = config.start;
+  const endConfig = config.end;
 
   const dateToUse = customDate || mockTimeOverride || new Date();
 

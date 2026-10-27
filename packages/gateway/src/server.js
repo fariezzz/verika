@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { recordAuditLog, getAuditLogs, verifyToken } from '@zero-trust/shared';
+import { recordAuditLog, getAuditLogs, verifyToken, getAccessHoursConfig } from '@zero-trust/shared';
 import { evaluatePolicy } from './policy-engine.js';
 import {
   handleLogin,
@@ -65,7 +65,10 @@ app.get('/auth/me', async (req, res) => {
   }
   try {
     const decoded = verifyToken(authHeader.split(' ')[1]);
-    return res.json({ user: decoded });
+    return res.json({
+      user: decoded,
+      access_hours: getAccessHoursConfig()
+    });
   } catch (err) {
     return res.status(401).json({ error: 'Token tidak valid atau kedaluwarsa' });
   }
